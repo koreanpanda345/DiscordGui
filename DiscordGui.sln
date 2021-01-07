@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordGui.Test", "DiscordGui.Test\DiscordGui.Test.csproj", "{4A57F56E-6C2B-4876-8365-85E47D7B98CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordGui", "DiscordGui\DiscordGui.csproj", "{59D7F326-A32A-4DB9-9818-522C4C8CAC85}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A57F56E-6C2B-4876-8365-85E47D7B98CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A57F56E-6C2B-4876-8365-85E47D7B98CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A57F56E-6C2B-4876-8365-85E47D7B98CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A57F56E-6C2B-4876-8365-85E47D7B98CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59D7F326-A32A-4DB9-9818-522C4C8CAC85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59D7F326-A32A-4DB9-9818-522C4C8CAC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59D7F326-A32A-4DB9-9818-522C4C8CAC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59D7F326-A32A-4DB9-9818-522C4C8CAC85}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
