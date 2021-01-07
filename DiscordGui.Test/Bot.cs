@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -25,10 +26,14 @@ namespace DiscordGui.Test
 
         public async Task MainAsync()
         {
+            if (string.IsNullOrWhiteSpace(Config.Bot.Token)) return;
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), null);
-            await _client.LoginAsync(TokenType.Bot, "");
+            await _client.LoginAsync(TokenType.Bot, Config.Bot.Token);
             var gui = new Gui(_client, _commandService);
-            gui.StartApplication();
+            gui.StartApplication(new GuiSettings()
+            {
+                
+            });
             await Task.Delay(-1);
         }
     }

@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <PackageReference Include="Discord.Net" Version="2.2.0" />
+      <PackageReference Include="Spectre.Console" Version="0.36.1-preview.0.20" />
       <PackageReference Include="Terminal.Gui" Version="1.0.0-pre.6" />
     </ItemGroup>
 

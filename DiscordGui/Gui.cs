@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.VisualBasic;
 using Terminal.Gui;
 
 namespace DiscordGui
@@ -18,54 +20,24 @@ namespace DiscordGui
             _client = client;
             _commandService = commandService;
         }
-        private string Logs { get; set; } = "";
-        private Label LatencyLabel { get; } = new Label()
-        {
-            X = 0,
-            Y = 0
-        };
-        private Label StatusLabel { get; } = new Label()
-        {
-            X = 0
-        };
-        
-        private Label LogSection { get; } = new Label()
-        {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
-        
-        private ScrollView LogScrollView { get; } = new ScrollView()
-        {
-            X = 0,
-            Y = Pos.Percent(50),
-            Width = Dim.Fill(),
-            Height = Dim.Percent(50)
-        };
-        public void StartApplication()
+
+        private string _logs = "";
+
+        public void StartApplication(GuiSettings settings)
         {
             Application.Init();
             var top = Application.Top;
-            
-            var win = new Window("Discord Gui")
-            {
-                X = 0,
-                Y = 0,
-                Width = Dim.Fill(),
-                Height = Dim.Fill()
-            };
+            var win = GuiComponents.MainGui.MainWindow;
 
             #region LatencyLabel
             
-            LatencyLabel.Text = $"Latency: {_client.Latency.ToString()} ms";
-            LatencyLabel.Width = LatencyLabel.Text.Length;
+            GuiComponents.MainGui.LatencyLabel.Text = $"Latency: {_client.Latency.ToString()} ms";
+            GuiComponents.MainGui.LatencyLabel.Width = GuiComponents.MainGui.LatencyLabel.Text.Length;
 
             _client.LatencyUpdated += (i, i1) =>
             {
-                LatencyLabel.Text = $"Latency: {i1.ToString()} ms";
-                LatencyLabel.Width = LatencyLabel.Text.Length;
+                GuiComponents.MainGui.LatencyLabel.Text = $"Latency: {_client.Latency.ToString()} ms";
+                GuiComponents.MainGui.LatencyLabel.Width = GuiComponents.MainGui.LatencyLabel.Text.Length;
                 return Task.CompletedTask;
             };
             
@@ -73,33 +45,48 @@ namespace DiscordGui
 
             #region StatusLabel
             
-            StatusLabel.Y = Pos.Bottom(LatencyLabel);
-            StatusLabel.Text = $"Status: {_client.Status.ToString()}";
-            StatusLabel.Width = StatusLabel.Text.Length;
+            GuiComponents.MainGui.StatusLabel.Y = Pos.Bottom(GuiComponents.MainGui.LatencyLabel);
+            GuiComponents.MainGui.StatusLabel.Text = $"Status: {_client.Status.ToString()}";
+            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
             _client.CurrentUserUpdated += (user, selfUser) =>
             {
-                StatusLabel.Text = $"Status: {selfUser.Status.ToString()}";
-                StatusLabel.Width = StatusLabel.Text.Length;
+                GuiComponents.MainGui.StatusLabel.Text = $"Status: {selfUser.Status.ToString()}";
+                GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
                 return Task.CompletedTask;
             };
             
             #endregion
 
+            #region ServerCountLabel
+            
+            GuiComponents.MainGui.ServerCountLabel.Text = $" In {_client.Guilds.Count} Servers";
+            GuiComponents.MainGui.ServerCountLabel.Width = GuiComponents.MainGui.ServerCountLabel.Text.Length;
+            GuiComponents.MainGui.ServerCountLabel.Height = 1;
+
+            #endregion
+
+            #region UsernameLabel
+
+            GuiComponents.MainGui.UsernameLabel.Text = "Username: ";
+            GuiComponents.MainGui.UsernameLabel.Height = 1;
+
+            #endregion
+            
             #region Command Labels
 
-            var i = 1;
+            var i = 0;
             _commandService.Commands.ToList().ForEach(x =>
             {
-                win.Add(new Label($"{x.Name}\tDescription: {x.Summary}\tModule: {x.Module.Name}")
+                GuiComponents.MainGui.CommandWindow.Add(new Label(x.Name)
                 {
-                    X = Pos.Percent(75),
-                    Y = Pos.Bottom(StatusLabel) + i,
+                    X = 0,
+                    Y = i,
                     Width = x.Name.Length,
                     Height = 1
                 });
-
                 i++;
             });
+            
 
             #endregion
             
@@ -111,24 +98,32 @@ namespace DiscordGui
                 {
                     case Key.F1: // Starts the bot.
                         await _client.StartAsync();
-                        StatusLabel.Text = $"Status: {_client.Status.ToString()}";
-                        StatusLabel.Width = StatusLabel.Text.Length;
+                        GuiComponents.MainGui.StatusLabel.Text = $"Status: {_client.Status.ToString()}";
+                        GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
+
+                        GuiComponents.MainGui.ServerCountLabel.Text = $" In {_client.Guilds.Count} Servers";
+                        GuiComponents.MainGui.ServerCountLabel.Width = GuiComponents.MainGui.ServerCountLabel.Text.Length;
                         
                         _client.Log += message =>
                         {
-                            Logs += $"[{DateTime.Now}]\t({message.Source})\t{message.Message}\n";
-                            LogSection.Text = Logs;
+                            _logs += $"[{DateTime.Now}]\t({message.Source})\t{message.Message}\n";
+                            GuiComponents.MainGui.LogLabel.Text = _logs;
+                            GuiComponents.MainGui.UsernameLabel.Text = $"Username: {_client.CurrentUser.Username}";
+                            GuiComponents.MainGui.UsernameLabel.Width = GuiComponents.MainGui.UsernameLabel.Text.Length;
+                            GuiComponents.MainGui.ServerCountLabel.Text = $" In {_client.Guilds.Count} Servers";
+                            GuiComponents.MainGui.ServerCountLabel.Width = GuiComponents.MainGui.ServerCountLabel.Text.Length;
                             return Task.CompletedTask;
                         };
                         
                         #region Log Scroll View
-
-                        LogScrollView.ContentSize = new Size(100, 50);
-                        LogScrollView.ShowHorizontalScrollIndicator = true;
-                        LogScrollView.ShowVerticalScrollIndicator = true;
+                        
+                        GuiComponents.MainGui.LogScroll.ContentSize = new Size(100, 50);
+                        GuiComponents.MainGui.LogScroll.ShowHorizontalScrollIndicator = true;
+                        GuiComponents.MainGui.LogScroll.ShowVerticalScrollIndicator = true;
             
-                        LogScrollView.Add(LogSection);
-                        win.Add(LogScrollView);
+                        GuiComponents.MainGui.LogScroll.Add(GuiComponents.MainGui.LogLabel);
+                        GuiComponents.MainGui.LogWindow.Add(GuiComponents.MainGui.LogScroll);
+                        win.Add(GuiComponents.MainGui.LogWindow);
                         #endregion
                         break;
                     case Key.F2: // Stops the bot
@@ -136,8 +131,8 @@ namespace DiscordGui
                             _client.ConnectionState == ConnectionState.Connected)
                         {
                             await _client.StopAsync();
-                            StatusLabel.Text = "Status: Offline";
-                            StatusLabel.Width = StatusLabel.Text.Length;
+                            GuiComponents.MainGui.StatusLabel.Text = "Status: Offline";
+                            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
                         }
                         break;
                     case Key.F3:
@@ -150,29 +145,34 @@ namespace DiscordGui
                         online.Clicked += async () =>
                         {
                             await _client.SetStatusAsync(UserStatus.Online);
-                            StatusLabel.Text = "Status: Online";
-                            StatusLabel.Width = StatusLabel.Text.Length;
+                            GuiComponents.MainGui.StatusLabel.Text = "Status: Online";
+                            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
+                            Application.RequestStop();
                         };
 
                         idle.Clicked += async () =>
                         {
                             await _client.SetStatusAsync(UserStatus.Idle);
-                            StatusLabel.Text = "Status: Idle";
-                            StatusLabel.Width = StatusLabel.Text.Length;
+                            GuiComponents.MainGui.StatusLabel.Text = "Status: Idle";
+                            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
+                            Application.RequestStop();
+
                         };
 
                         dnd.Clicked += async () =>
                         {
                             await _client.SetStatusAsync(UserStatus.DoNotDisturb);
-                            StatusLabel.Text = "Status: Do Not Disturb";
-                            StatusLabel.Width = StatusLabel.Text.Length;
+                            GuiComponents.MainGui.StatusLabel.Text = "Status: Do Not Disturb";
+                            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
+                            Application.RequestStop();
                         };
 
                         invisible.Clicked += async () =>
                         {
                             await _client.SetStatusAsync(UserStatus.Invisible);
-                            StatusLabel.Text = "Status: Online";
-                            StatusLabel.Width = StatusLabel.Text.Length;
+                            GuiComponents.MainGui.StatusLabel.Text = "Status: Online";
+                            GuiComponents.MainGui.StatusLabel.Width = GuiComponents.MainGui.StatusLabel.Text.Length;
+                            Application.RequestStop();
                         };
                         
                         Application.Run(dialog);
@@ -185,17 +185,36 @@ namespace DiscordGui
 
             #endregion
 
+            #region Menu
+
+            var menu = new MenuBar(new[]
+            {
+                new MenuBarItem("_Application", new[]
+                {
+                    new MenuItem("_Quit", "Exit out of the program.", () =>
+                    {
+                        Application.RequestStop();
+                    })
+                })
+            });
+            
+            #endregion
+
             #region Win Add
-
-            win.Add(LatencyLabel);
-            win.Add(StatusLabel);
-
+            if(!settings.DisableTips)
+                GuiComponents.MainGui.InformationWindow.Add(GuiComponents.MainGui.TooltipsLabel);
+            win.Add(GuiComponents.MainGui.CommandWindow);
+            GuiComponents.MainGui.StatsWindow.Add(GuiComponents.MainGui.ServerCountLabel);
+            GuiComponents.MainGui.StatsWindow.Add(GuiComponents.MainGui.LatencyLabel);
+            GuiComponents.MainGui.StatsWindow.Add(GuiComponents.MainGui.StatusLabel);
+            GuiComponents.MainGui.StatsWindow.Add(GuiComponents.MainGui.UsernameLabel);
+            win.Add(GuiComponents.MainGui.StatsWindow);
+            win.Add(GuiComponents.MainGui.InformationWindow);
             #endregion
             
             win.ColorScheme = Colors.TopLevel;
-            top.Add(win);
+            top.Add(win, menu);
             Application.Run(top);
         }
-
     }
 }
